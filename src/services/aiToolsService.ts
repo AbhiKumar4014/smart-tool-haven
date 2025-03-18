@@ -1,4 +1,3 @@
-
 import { AITool, ToolCategory } from "@/types";
 import { mockTools } from "@/lib/mockData";
 
@@ -117,6 +116,17 @@ export const compareToolsPrompt = (tools: string[]) => {
   Ensure all comparison data is accurate and highlight key differences between the tools.`;
 };
 
+export const toolDetailPrompt = (toolId: string) => {
+  return `Provide comprehensive details about the AI tool with ID "${toolId}".
+  Include all available information such as features, pricing, pros, cons, use cases, integrations, and testimonials.
+  
+  Return your answer strictly as a JSON object conforming to the following TypeScript interface:
+  
+  ${toolInterface}
+  
+  Ensure all details are accurate and up-to-date.`;
+};
+
 const getAiResponse = async (prompt: string): Promise<string> => {
   if (!window.puter?.ai?.chat) {
     console.warn("Puter AI is not initialized. Using mock data instead.");
@@ -216,5 +226,18 @@ export const compareTools = async (toolIds: string[]): Promise<AITool[]> => {
   } catch (error) {
     console.error("Error comparing tools:", error);
     return mockTools.filter(tool => toolIds.includes(tool.id));
+  }
+};
+
+export const fetchToolById = async (id: string): Promise<AITool | null> => {
+  try {
+    const prompt = toolDetailPrompt(id);
+    const response = await getAiResponse(prompt);
+    return JSON.parse(response) as AITool;
+  } catch (error) {
+    console.error(`Error fetching tool with ID ${id}:`, error);
+    // Fallback to mock data
+    const tool = mockTools.find(t => t.id === id);
+    return tool || null;
   }
 };
