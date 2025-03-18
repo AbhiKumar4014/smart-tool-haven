@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { ToolCategory, CategoryData } from '@/types';
-import { Grid2X2, MessageSquare, Cpu, Image, MusicNote, Video, Briefcase, BarChart3, Code } from 'lucide-react';
+import { Grid2X2, MessageSquare, Cpu, Image, Music, Video, Briefcase, BarChart3, Code } from 'lucide-react';
 
 const categoryData: CategoryData[] = [
   {
@@ -35,7 +35,7 @@ const categoryData: CategoryData[] = [
     id: 'ai-audio',
     name: 'AI Audio',
     description: 'Tools for audio processing and generation',
-    icon: 'MusicNote'
+    icon: 'Music'
   },
   {
     id: 'ai-video',
@@ -70,7 +70,7 @@ const CategoryCard: React.FC<{ category: CategoryData }> = ({ category }) => {
       case 'MessageSquare': return <MessageSquare className="w-6 h-6" />;
       case 'Grid2X2': return <Grid2X2 className="w-6 h-6" />;
       case 'Image': return <Image className="w-6 h-6" />;
-      case 'MusicNote': return <MusicNote className="w-6 h-6" />;
+      case 'Music': return <Music className="w-6 h-6" />;
       case 'Video': return <Video className="w-6 h-6" />;
       case 'Briefcase': return <Briefcase className="w-6 h-6" />;
       case 'BarChart3': return <BarChart3 className="w-6 h-6" />;
