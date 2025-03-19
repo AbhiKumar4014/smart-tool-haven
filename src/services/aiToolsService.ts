@@ -46,7 +46,11 @@ export const toolInterface = `export interface AITool {
   }[];
   created: string;
   updated: string;
-}`;
+}
+  Ensure that:
+    1. Each tool's object includes all the fields listed above. If certain details are not available, provide an appropriate null or empty value.
+    2. The "description" field succinctly summarizes the tool's capabilities, primary use case, and its target market.
+    3. The final output is strictly well-formatted, valid JSON with no extra commentary or markdown formatting.`;
 
 export const trendingToolsPrompt = (countryFilter: string = '') => {
   let prompt = `Research and list the top 10 trending AI tools currently available`;
@@ -65,12 +69,7 @@ export const trendingToolsPrompt = (countryFilter: string = '') => {
 
     Return your answer strictly as a JSON array where each element is an object conforming to the following TypeScript interface:
 
-    ${toolInterface}
-
-    Ensure that:
-    1. Each tool's object includes all the fields listed above. If certain details are not available, provide an appropriate null or empty value.
-    2. The "description" field succinctly summarizes the tool's capabilities, primary use case, and its target market.
-    3. The final output is strictly well-formatted, valid JSON with no extra commentary or markdown formatting.`;
+    ${toolInterface}`;
   return prompt;
 };
 
@@ -155,7 +154,7 @@ export const fetchTrendingTools = async (countryFilter: string = ''): Promise<AI
   try {
     const prompt = trendingToolsPrompt(countryFilter);
     const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
+    return eval(response) as AITool[];
   } catch (error) {
     console.error("Error fetching trending tools:", error);
     return mockTools.filter(tool => tool.trending);
@@ -166,7 +165,7 @@ export const fetchFeaturedTools = async (): Promise<AITool[]> => {
   try {
     const prompt = featuredToolsPrompt();
     const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
+    return eval(response) as AITool[];
   } catch (error) {
     console.error("Error fetching featured tools:", error);
     return mockTools.filter(tool => tool.featured);
@@ -177,7 +176,7 @@ export const searchTools = async (query: string): Promise<AITool[]> => {
   try {
     const prompt = searchToolsPrompt(query);
     const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
+    return eval(response) as AITool[];
   } catch (error) {
     console.error("Error searching tools:", error);
     return mockTools.filter(tool => 
@@ -206,7 +205,7 @@ export const fetchToolsByCategory = async (category: ToolCategory): Promise<AITo
   try {
     const prompt = categoryToolsPrompt(category);
     const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
+    return eval(response) as AITool[];
   } catch (error) {
     console.error(`Error fetching tools for category ${category}:`, error);
     return mockTools.filter(tool => tool.category === category);
@@ -222,7 +221,7 @@ export const compareTools = async (toolIds: string[]): Promise<AITool[]> => {
   try {
     const prompt = compareToolsPrompt(toolNames);
     const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
+    return eval(response) as AITool[];
   } catch (error) {
     console.error("Error comparing tools:", error);
     return mockTools.filter(tool => toolIds.includes(tool.id));
@@ -233,7 +232,7 @@ export const fetchToolById = async (id: string): Promise<AITool | null> => {
   try {
     const prompt = toolDetailPrompt(id);
     const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool;
+    return eval(response) as AITool;
   } catch (error) {
     console.error(`Error fetching tool with ID ${id}:`, error);
     // Fallback to mock data
