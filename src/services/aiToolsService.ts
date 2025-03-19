@@ -1,243 +1,102 @@
-import { AITool, ToolCategory } from "@/types";
-import { mockTools } from "@/lib/mockData";
+import { AITool, Category } from "@/types";
+import { getMockTools } from "@/lib/mockData";
 
-declare global {
-  interface Window {
-    puter?: {
-      ai?: {
-        chat: (prompt: string) => Promise<{ message?: { content: string } } | string>;
-      };
-    };
-  }
-}
-
-export const toolInterface = `export interface AITool {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  subcategory?: string;
-  url: string;
-  logoUrl: string;
-  pricing?: array;
-  company?: string;
-  origin?: string;
-  trending?: boolean;
-  featured?: boolean;
-  tags?: string[];
-  features: string[];
-  pros: string[];
-  cons: string[];
-  rating: number;
-  users: string;
-  reviews?: number;
-  useCases?: string[];
-  integrations?: string[];
-  alternatives?: {
-    id: string;
-    name: string;
-    logoUrl: string;
-  }[];
-  testimonials?: {
-    author: string;
-    company: string;
-    content: string;
-    rating: number;
-  }[];
-  created: string;
-  updated: string;
-}`;
-
-export const trendingToolsPrompt = (countryFilter: string = '') => {
-  let prompt = `Research and list the top 10 trending AI tools currently available`;
-  if (countryFilter) {
-    prompt = `Research and list the top trending AI tools currently available`;
-    prompt += ` from ${countryFilter}`;
-  }
-  prompt += `. Please ensure your response spans a diverse range of categories. For each tool, gather and include comprehensive details including:
-    - Primary use case and target audience
-    - Key features and standout functionalities
-    - Pricing details and user statistics
-    - User testimonials and reviews
-    - Use cases and integrations
-    - Similar tools and alternatives
-    - All additional metadata and statistics
-
-    Return your answer strictly as a JSON array where each element is an object conforming to the following TypeScript interface:
-
-    ${toolInterface}
-
-    Ensure that:
-    1. Each tool's object includes all the fields listed above. If certain details are not available, provide an appropriate null or empty value.
-    2. The "description" field succinctly summarizes the tool's capabilities, primary use case, and its target market.
-    3. The final output is strictly well-formatted, valid JSON with no extra commentary or markdown formatting.`;
-  return prompt;
+/**
+ * Fetch all AI tools
+ */
+export const fetchAITools = async (): Promise<AITool[]> => {
+  // In a real app, this would be an API call
+  // For now, simulate delay and return mock data
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return getMockTools();
 };
 
-export const featuredToolsPrompt = () => {
-  return `Research and list the top 8 featured AI tools that stand out for their innovation and impact. 
-  These should be noteworthy tools that have received significant recognition or have unique capabilities.
+/**
+ * Fetch trending AI tools
+ */
+export const fetchTrendingTools = async (): Promise<AITool[]> => {
+  // In a real app, this would be an API call
+  // For now, simulate delay and return mock data
+  await new Promise(resolve => setTimeout(resolve, 600));
   
-  Return your answer strictly as a JSON array where each element is an object conforming to the following TypeScript interface:
+  // Simulate trending by sorting by rating
+  const tools = getMockTools()
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0, 6);
   
-  ${toolInterface}
-  
-  Ensure that each tool has the featured property set to true, and include all the required fields.`;
+  return tools;
 };
 
-export const searchToolsPrompt = (query: string) => {
-  return `Search for AI tools related to "${query}" and provide comprehensive details on the top matches.
-  
-  Return your answer strictly as a JSON array where each element is an object conforming to the following TypeScript interface:
-  
-  ${toolInterface}
-  
-  Ensure all details are accurate and up-to-date.`;
-};
-
-export const categoryToolsPrompt = (category: ToolCategory) => {
-  return `List the top AI tools in the ${category} category, providing comprehensive details for each.
-  
-  Return your answer strictly as a JSON array where each element is an object conforming to the following TypeScript interface:
-  
-  ${toolInterface}
-  
-  Ensure that each tool properly belongs to the ${category} category.`;
-};
-
-export const compareToolsPrompt = (tools: string[]) => {
-  return `Provide a detailed comparison of the following AI tools: ${tools.join(', ')}.
-  Compare them on features, pricing, usability, and target audience.
-  
-  Return your answer strictly as a JSON array where each element is an object conforming to the following TypeScript interface:
-  
-  ${toolInterface}
-  
-  Ensure all comparison data is accurate and highlight key differences between the tools.`;
-};
-
-export const toolDetailPrompt = (toolId: string) => {
-  return `Provide comprehensive details about the AI tool with ID "${toolId}".
-  Include all available information such as features, pricing, pros, cons, use cases, integrations, and testimonials.
-  
-  Return your answer strictly as a JSON object conforming to the following TypeScript interface:
-  
-  ${toolInterface}
-  
-  Ensure all details are accurate and up-to-date.`;
-};
-
-const getAiResponse = async (prompt: string): Promise<string> => {
-  if (!window.puter?.ai?.chat) {
-    console.warn("Puter AI is not initialized. Using mock data instead.");
-    throw new Error("Puter AI is not initialized");
-  }
-
-  try {
-    const aiResponse = await window.puter.ai.chat(prompt);
-
-    if (typeof aiResponse === "string") {
-      return aiResponse;
-    }
-
-    if (aiResponse?.message?.content) {
-      return aiResponse.message.content;
-    }
-
-    throw new Error("Unexpected response format from Puter AI.");
-  } catch (error: unknown) {
-    console.error("Error calling Puter AI:", error);
-    throw new Error(`Failed to get AI response from Puter: ${(error as Error).message}`);
-  }
-};
-
-export const fetchTrendingTools = async (countryFilter: string = ''): Promise<AITool[]> => {
-  try {
-    const prompt = trendingToolsPrompt(countryFilter);
-    const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
-  } catch (error) {
-    console.error("Error fetching trending tools:", error);
-    return mockTools.filter(tool => tool.trending);
-  }
-};
-
+/**
+ * Fetch featured AI tools
+ */
 export const fetchFeaturedTools = async (): Promise<AITool[]> => {
-  try {
-    const prompt = featuredToolsPrompt();
-    const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
-  } catch (error) {
-    console.error("Error fetching featured tools:", error);
-    return mockTools.filter(tool => tool.featured);
-  }
-};
-
-export const searchTools = async (query: string): Promise<AITool[]> => {
-  try {
-    const prompt = searchToolsPrompt(query);
-    const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
-  } catch (error) {
-    console.error("Error searching tools:", error);
-    return mockTools.filter(tool => 
-      tool.name.toLowerCase().includes(query.toLowerCase()) || 
-      tool.description.toLowerCase().includes(query.toLowerCase()) ||
-      (tool.tags && tool.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase())))
-    );
-  }
-};
-
-export const fetchToolsByCategory = async (category: ToolCategory): Promise<AITool[]> => {
-  if (category === 'All') {
-    try {
-      const trendingTools = await fetchTrendingTools();
-      const featuredTools = await fetchFeaturedTools();
-      const combinedTools = [...trendingTools, ...featuredTools];
-      // Remove duplicates based on id
-      const uniqueTools = Array.from(new Map(combinedTools.map(tool => [tool.id, tool])).values());
-      return uniqueTools;
-    } catch (error) {
-      console.error("Error fetching all tools:", error);
-      return mockTools;
-    }
-  }
+  // In a real app, this would be an API call
+  // For now, simulate delay and return mock data
+  await new Promise(resolve => setTimeout(resolve, 700));
   
-  try {
-    const prompt = categoryToolsPrompt(category);
-    const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
-  } catch (error) {
-    console.error(`Error fetching tools for category ${category}:`, error);
-    return mockTools.filter(tool => tool.category === category);
-  }
+  // Simulate featured by filtering tools with rating >= 4.5
+  const tools = getMockTools()
+    .filter(tool => tool.rating >= 4.5)
+    .slice(0, 6);
+  
+  return tools;
 };
 
-export const compareTools = async (toolIds: string[]): Promise<AITool[]> => {
-  const toolNames = toolIds.map(id => {
-    const tool = mockTools.find(t => t.id === id);
-    return tool ? tool.name : id;
+/**
+ * Fetch a single AI tool by ID
+ */
+export const fetchToolById = async (id: string): Promise<AITool | null> => {
+  // In a real app, this would be an API call
+  // For now, simulate delay and return mock data
+  await new Promise(resolve => setTimeout(resolve, 400));
+  
+  const tools = getMockTools();
+  const tool = tools.find(tool => tool.id === id);
+  
+  return tool || null;
+};
+
+/**
+ * Search AI tools by query
+ */
+export const searchTools = async (query: string): Promise<AITool[]> => {
+  // In a real app, this would be an API call
+  // For now, simulate delay and return mock data
+  await new Promise(resolve => setTimeout(resolve, 300));
+  
+  const tools = getMockTools();
+  const searchTerm = query.toLowerCase();
+  
+  const results = tools.filter(tool => {
+    return (
+      tool.name.toLowerCase().includes(searchTerm) ||
+      tool.description.toLowerCase().includes(searchTerm) ||
+      tool.category.toLowerCase().includes(searchTerm) ||
+      (tool.subcategory?.toLowerCase().includes(searchTerm) ?? false) ||
+      tool.features.some(feature => feature.toLowerCase().includes(searchTerm))
+    );
   });
   
-  try {
-    const prompt = compareToolsPrompt(toolNames);
-    const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
-  } catch (error) {
-    console.error("Error comparing tools:", error);
-    return mockTools.filter(tool => toolIds.includes(tool.id));
-  }
+  return results;
 };
 
-export const fetchToolById = async (id: string): Promise<AITool | null> => {
-  try {
-    const prompt = toolDetailPrompt(id);
-    const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool;
-  } catch (error) {
-    console.error(`Error fetching tool with ID ${id}:`, error);
-    // Fallback to mock data
-    const tool = mockTools.find(t => t.id === id);
-    return tool || null;
-  }
+/**
+ * Fetch new release AI tools
+ */
+export const fetchNewReleaseTools = async (): Promise<AITool[]> => {
+  // In a real app, this would be an API call
+  // For now, simulate delay and return mock data
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  // Get trending tools but modify data to simulate new releases
+  const tools = getMockTools()
+    .slice(8, 17)
+    .map(tool => ({
+      ...tool,
+      releaseDate: new Date().toISOString().split('T')[0], // Today's date
+      isNewRelease: true,
+    }));
+  
+  return tools;
 };
