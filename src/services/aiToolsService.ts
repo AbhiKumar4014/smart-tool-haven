@@ -1,5 +1,5 @@
 import { AITool, Category } from "@/types";
-import { getMockTools } from "@/lib/mockData";
+import { mockTools } from "@/lib/mockData";
 
 declare global {
   interface Window {
@@ -46,7 +46,11 @@ export const toolInterface = `export interface AITool {
   }[];
   created: string;
   updated: string;
-}`;
+}
+  Ensure that:
+    1. Each tool's object includes all the fields listed above. If certain details are not available, provide an appropriate null or empty value.
+    2. The "description" field succinctly summarizes the tool's capabilities, primary use case, and its target market.
+    3. The final output is strictly well-formatted, valid JSON with no extra commentary or markdown formatting.`;
 
 export const trendingToolsPrompt = (countryFilter: string = '') => {
   let prompt = `Research and list the top 10 trending AI tools currently available`;
@@ -77,18 +81,6 @@ export const trendingToolsPrompt = (countryFilter: string = '') => {
 /**
  * Fetch featured AI tools
  */
-export const fetchFeaturedTools = async (): Promise<AITool[]> => {
-  // In a real app, this would be an API call
-  // For now, simulate delay and return mock data
-  await new Promise(resolve => setTimeout(resolve, 700));
-  
-  // Simulate featured by filtering tools with rating >= 4.5
-  const tools = getMockTools()
-    .filter(tool => tool.rating >= 4.5)
-    .slice(0, 6);
-  
-  return tools;
-};
 
 export const toolDetailPrompt = (toolId: string) => {
   return `Provide comprehensive details about the AI tool with ID "${toolId}".
@@ -129,7 +121,7 @@ export const fetchTrendingTools = async (countryFilter: string = ''): Promise<AI
   try {
     const prompt = trendingToolsPrompt(countryFilter);
     const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
+    return eval(response) as AITool[];
   } catch (error) {
     console.error("Error fetching trending tools:", error);
     return mockTools.filter(tool => tool.trending);
@@ -151,7 +143,7 @@ export const searchTools = async (query: string): Promise<AITool[]> => {
   try {
     const prompt = searchToolsPrompt(query);
     const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
+    return eval(response) as AITool[];
   } catch (error) {
     console.error("Error searching tools:", error);
     return mockTools.filter(tool => 
@@ -180,7 +172,7 @@ export const fetchToolsByCategory = async (category: ToolCategory): Promise<AITo
   try {
     const prompt = categoryToolsPrompt(category);
     const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
+    return eval(response) as AITool[];
   } catch (error) {
     console.error(`Error fetching tools for category ${category}:`, error);
     return mockTools.filter(tool => tool.category === category);
@@ -196,7 +188,7 @@ export const compareTools = async (toolIds: string[]): Promise<AITool[]> => {
   try {
     const prompt = compareToolsPrompt(toolNames);
     const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool[];
+    return eval(response) as AITool[];
   } catch (error) {
     console.error("Error comparing tools:", error);
     return mockTools.filter(tool => toolIds.includes(tool.id));
@@ -207,11 +199,61 @@ export const fetchToolById = async (id: string): Promise<AITool | null> => {
   try {
     const prompt = toolDetailPrompt(id);
     const response = await getAiResponse(prompt);
-    return JSON.parse(response) as AITool;
+    return eval(response) as AITool;
   } catch (error) {
     console.error(`Error fetching tool with ID ${id}:`, error);
-    // Fallback to mock data
     const tool = mockTools.find(t => t.id === id);
     return tool || null;
   }
+};
+
+/**
+ * Fetch new release AI tools
+ */
+function featuredToolsPrompt(): string {
+  return `Research and list the top featured AI tools currently available. 
+  Ensure your response includes a diverse range of categories and provides comprehensive details for each tool, including:
+    - Primary use case and target audience
+    - Key features and standout functionalities
+    - Pricing details and user statistics
+    - User testimonials and reviews
+    - Use cases and integrations
+    - Similar tools and alternatives
+    - All additional metadata and statistics
+
+  Return your answer strictly as a JSON array where each element is an object conforming to the following TypeScript interface:
+
+  ${toolInterface}
+
+  Ensure that:
+  1. Each tool's object includes all the fields listed above. If certain details are not available, provide an appropriate null or empty value.
+  2. The "description" field succinctly summarizes the tool's capabilities, primary use case, and its target market.
+  3. The final output is strictly well-formatted, valid JSON with no extra commentary or markdown formatting.`;
+}
+
+type ToolCategory = Category | 'All';
+
+export const compareToolsPrompt = (toolNames: string[]): string => {
+  return `Compare the following AI tools: ${toolNames.join(', ')}.
+  Provide comprehensive details about each tool including features, pricing, pros, cons, and use cases.
+  
+  Return your answer strictly as a JSON array where each element is an object conforming to the following TypeScript interface:
+  
+  ${toolInterface}
+  
+  Ensure all details are accurate and up-to-date.`;
+};
+
+export const searchToolsPrompt = (query: string): string => {
+  return `Search for AI tools matching the query "${query}".
+  Return your answer strictly as a JSON array where each element is an object conforming to the following TypeScript interface:
+  
+  ${toolInterface}`;
+};
+
+export const categoryToolsPrompt = (category: ToolCategory): string => {
+  return `List all available AI tools in the "${category}" category.
+  Return your answer strictly as a JSON array where each element is an object conforming to the following TypeScript interface:
+  
+  ${toolInterface}`;
 };
