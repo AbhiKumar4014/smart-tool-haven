@@ -11,6 +11,9 @@ import FeaturedToolsPage from "./pages/FeaturedTools";
 import CategoriesPage from "./pages/Categories";
 import CategoryToolsPage from "./pages/CategoryTools";
 import ToolDetailPage from "./pages/ToolDetail";
+import NewReleasesPage from "./pages/NewReleases";
+import ComparePage from "./pages/Compare";
+import SearchPage from "./pages/Search";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -28,11 +31,9 @@ const App = () => (
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/category/:id" element={<CategoryToolsPage />} />
           <Route path="/tool/:id" element={<ToolDetailPage />} />
-          
-          {/* Routes to be implemented later */}
-          <Route path="/new-releases" element={<Index />} />
-          <Route path="/compare" element={<Index />} />
-          <Route path="/search" element={<Index />} />
+          <Route path="/new-releases" element={<NewReleasesPage />} />
+          <Route path="/compare" element={<ComparePage />} />
+          <Route path="/search" element={<SearchPage />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
